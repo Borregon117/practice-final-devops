@@ -1,0 +1,13 @@
+{
+  "name": "api-inventario-devsecops",
+  "version": "1.0.0",
+  "description": "API REST para gestión logística y de inventario",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "axios": "0.21.1" 
+  }
+}
