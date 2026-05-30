@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario Logístico</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f6f9; color: #333; }
+        h1, h2 { color: #2c3e50; }
+        form { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input { padding: 8px; margin: 5px 0; width: 95%; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #27ae60; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #219a52; }
+        ul { list-style: none; padding: 0; }
+        li { background: white; padding: 12px; margin-bottom: 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .btn-delete { background: #c0392b; width: auto; padding: 5px 10px; font-size: 12px; }
+        .btn-delete:hover { background: #a93226; }
+    </style>
+</head>
+<body>
+
+    <h1>Sistema de Control de Inventario</h1>
+    
+    <form id="itemForm">
+        <h2>Registrar Artículo</h2>
+        <input type="text" id="articulo" placeholder="Nombre del artículo (ej. Cable XLR)" required>
+        <input type="number" id="stock" placeholder="Cantidad en Stock" required>
+        <button type="submit">Agregar al Inventario</button>
+    </form>
+
+    <h2>Inventario Actual</h2>
+    <ul id="inventarioList"></ul>
+
+    <script>
+        const url = '/api/inventario';
+
+        // Cargar y renderizar el inventario
+        async function cargarInventario() {
+            const res = await fetch(url);
+            const json = await res.json();
+            const lista = document.getElementById('inventarioList');
+            lista.innerHTML = '';
+            
+            json.data.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span><strong>${item.articulo}</strong> — ${item.stock} unidades</span>
+                    <button class="btn-delete" onclick="eliminarItem(${item.id})">Eliminar</button>
+                `;
+                lista.appendChild(li);
+            });
+        }
+
+        // Agregar artículo
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const articulo = document.getElementById('articulo').value;
+            const stock = document.getElementById('stock').value;
+
+            await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articulo, stock })
+            });
+
+            document.getElementById('itemForm').reset();
+            cargarInventario();
+        });
+
+        // Eliminar artículo
+        async function eliminarItem(id) {
+            await fetch(`${url}/${id}`, { method: 'DELETE' });
+            cargarInventario();
+        }
+
+        // Carga inicial
+        cargarInventario();
+    </script>
+</body>
+</html>
